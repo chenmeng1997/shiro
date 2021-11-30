@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: shiro-test
+  profiles:
+    active: test
+  servlet:
+    multipart:
+      max-file-size: 500
+      max-request-size: 1024
