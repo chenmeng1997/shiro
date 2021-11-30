@@ -34,7 +34,7 @@ public class CodeGenerator {
         gc.setOutputDir(projectPath + "/src/main/java");
         gc.setAuthor("陈萌");
         gc.setOpen(false); // 打开文件夹
-        gc.setFileOverride(true); // 是否覆盖
+        gc.setFileOverride(false); // 是否覆盖
         gc.setServiceName("I%sService");
         gc.setServiceImplName("%sServiceImpl");
         gc.setControllerName("%sController");
@@ -77,7 +77,7 @@ public class CodeGenerator {
         strategy.setEntityLombokModel(true);
         strategy.setLogicDeleteFieldName("delete_state"); //逻辑删除属性名称
         // 自动填充
-        TableFill creat_time = new TableFill("creat_time", FieldFill.INSERT);
+        TableFill creat_time = new TableFill("create_time", FieldFill.INSERT);
         TableFill modify_time = new TableFill("modify_time", FieldFill.UPDATE);
         List<TableFill> fillList = new ArrayList<>();
         fillList.add(creat_time);

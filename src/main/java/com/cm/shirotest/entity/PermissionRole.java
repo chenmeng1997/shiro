@@ -2,12 +2,16 @@ package com.cm.shirotest.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+
 import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableField;
+
 import java.io.Serializable;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,29 +28,31 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_permission_role")
-@ApiModel(value="PermissionRole对象", description="权限角色关系表")
+@ApiModel(value = "PermissionRole对象", description = "权限角色关系表")
 public class PermissionRole implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "权限角色关系id")
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    @ApiModelProperty(value = "角色ID")
     private Long rid;
 
+    @ApiModelProperty(value = "权限ID")
     private Long pid;
 
     @ApiModelProperty(value = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     @ApiModelProperty(value = "修改时间")
-      @TableField(fill = FieldFill.UPDATE)
+    @TableField(fill = FieldFill.UPDATE)
     private Date modifyTime;
 
     @ApiModelProperty(value = "删除标志：0未删除，1已删除")
     @TableLogic
     private Boolean deleteState;
-
 
 }
