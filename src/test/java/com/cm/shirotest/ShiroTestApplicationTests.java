@@ -2,7 +2,9 @@ package com.cm.shirotest;
 
 
 import com.cm.shirotest.api.vo.PermissionRoleVo;
+import com.cm.shirotest.api.vo.UserRoleVo;
 import com.cm.shirotest.service.IPermissionRoleService;
+import com.cm.shirotest.service.IUserRoleService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,28 @@ public class ShiroTestApplicationTests {
 
     @Autowired
     private IPermissionRoleService permissionRoleService;
-    
+
+    @Autowired
+    private IUserRoleService userRoleService;
+
+    /**
+     * 权限
+     */
     @Test
-    public void contextLoads() {
+    public void getPermissionRoleVoByRoleId() {
         PermissionRoleVo permissionRoleVo = permissionRoleService.getPermissionRoleVoByRoleId(1L);
     }
 
+
+    /**
+     * 角色
+     */
+
+    /**
+     * 用户
+     */
+    @Test
+    public void getUserRoleByUserId() {
+        UserRoleVo userRoleVo = userRoleService.getUserRoleByUserId(1);
+    }
 }

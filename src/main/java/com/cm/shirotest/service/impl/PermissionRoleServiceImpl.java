@@ -11,6 +11,7 @@ import com.cm.shirotest.dao.PermissionRoleMapper;
 import com.cm.shirotest.entity.Role;
 import com.cm.shirotest.service.IPermissionRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +34,12 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 @Service
+@RequiredArgsConstructor
 public class PermissionRoleServiceImpl extends ServiceImpl<PermissionRoleMapper, PermissionRole> implements IPermissionRoleService {
 
-
-    @Autowired
-    private RoleMapper roleMapper;
-    @Autowired
-    private PermissionMapper permissionMapper;
-    @Autowired
-    private PermissionRoleMapper permissionRoleMapper;
+    private final RoleMapper roleMapper;
+    private final PermissionMapper permissionMapper;
+    private final PermissionRoleMapper permissionRoleMapper;
 
     @Override
     public PermissionRoleVo getPermissionRoleVoByRoleId(Long roleId) {
@@ -49,7 +47,7 @@ public class PermissionRoleServiceImpl extends ServiceImpl<PermissionRoleMapper,
         Role role = roleMapper.selectById(roleId);
         Optional.ofNullable(role)
                 .filter(roleTemp -> !roleTemp.getDeleteState())
-                .orElseThrow(() ->  new RuntimeException("角色不存在"));
+                .orElseThrow(() -> new RuntimeException("角色不存在"));
         // 权限ID集合
         QueryWrapper<PermissionRole> permissionRoleQueryWrapper = new QueryWrapper<>();
         permissionRoleQueryWrapper
@@ -61,7 +59,8 @@ public class PermissionRoleServiceImpl extends ServiceImpl<PermissionRoleMapper,
                 .map(PermissionRole::getPid)
                 .collect(Collectors.toList());
         // 权限
-        List<Permission> permissionList = permissionMapper.selectBatchIds(permissionIdList).stream()
+        List<Permission> permissionList = permissionMapper.selectBatchIds(permissionIdList)
+                .stream()
                 .filter(permissionTemp -> !permissionTemp.getDeleteState())
                 .collect(Collectors.toList());
         return this.permissionRoleVoAssembly(role, permissionList);
