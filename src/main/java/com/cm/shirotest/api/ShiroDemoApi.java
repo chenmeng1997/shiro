@@ -6,6 +6,8 @@ package com.cm.shirotest.api;
  */
 public interface ShiroDemoApi {
 
-    String GET_USER_BY_ID = "/user/byId/{id}";
+    String USER_BY_ID = "/user/byId/{id}";
+
+    String USER_LOGIN = "/user/login";
 
 }

@@ -3,8 +3,11 @@ package com.cm.shirotest;
 
 import com.cm.shirotest.api.vo.PermissionRoleVo;
 import com.cm.shirotest.api.vo.UserRoleVo;
+import com.cm.shirotest.entity.User;
 import com.cm.shirotest.service.IPermissionRoleService;
 import com.cm.shirotest.service.IUserRoleService;
+import com.cm.shirotest.service.IUserService;
+import com.cm.shirotest.utils.PWDUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@ public class ShiroTestApplicationTests {
 
     @Autowired
     private IUserRoleService userRoleService;
+    @Autowired
+    private IUserService userService;
 
     /**
      * 权限
@@ -40,5 +45,16 @@ public class ShiroTestApplicationTests {
     @Test
     public void getUserRoleByUserId() {
         UserRoleVo userRoleVo = userRoleService.getUserRoleByUserId(1);
+    }
+
+    @Test
+    public void test() {
+        User user = new User();
+        user.setId(2);
+        String salt = PWDUtil.getSalt(6);
+        user.setSalt(salt);
+        String pwd = PWDUtil.getMD5Pwd("chen1997", salt, 2);
+        user.setPassword(pwd);
+        boolean update = userService.updateById(user);
     }
 }
