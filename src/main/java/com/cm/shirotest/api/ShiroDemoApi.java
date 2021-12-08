@@ -6,8 +6,15 @@ package com.cm.shirotest.api;
  */
 public interface ShiroDemoApi {
 
-    String USER_BY_ID = "/user/byId/{id}";
+    String USER_INFO = "/user/byId/{id}";
 
+    /**
+     * 用户登录
+     */
     String USER_LOGIN = "/user/login";
+    /**
+     * 用户登出
+     */
+    String USER_LOGIN_OUT = "/user/loginOut";
 
 }

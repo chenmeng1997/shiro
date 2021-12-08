@@ -2,10 +2,15 @@ package com.cm.shirotest.config.shiro;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.cm.shirotest.api.vo.PermissionVo;
+import com.cm.shirotest.api.vo.RoleVo;
+import com.cm.shirotest.api.vo.UserRoleVo;
 import com.cm.shirotest.entity.User;
 import com.cm.shirotest.enu.DeleteStateEnum;
+import com.cm.shirotest.service.IUserRoleService;
 import com.cm.shirotest.service.IUserService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -17,8 +22,10 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 陈萌
@@ -31,6 +38,8 @@ public class UserRealm extends AuthorizingRealm {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IUserRoleService userRoleService;
 
     /**
      * 授权
@@ -42,11 +51,22 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         User user = (User) principalCollection.getPrimaryPrincipal();
+        UserRoleVo userRolePermission = userRoleService.getUserRoleByUserId(user.getId());
         // 角色
-        Set<String> roles = new HashSet<>();
+        Set<String> roles = userRolePermission.getRoleSet()
+                .stream()
+                .map(RoleVo::getRname)
+                .collect(Collectors.toSet());
         authorizationInfo.setRoles(roles);
         // 权限
         Set<String> permissions = new HashSet<>();
+        userRolePermission.getPermissionSet()
+                .forEach(permissionVo -> {
+                    String perms = permissionVo.getPerms();
+                    if (StringUtils.isNotBlank(perms)) {
+                        permissions.addAll(Arrays.asList(perms.split(",")));
+                    }
+                });
         authorizationInfo.setStringPermissions(permissions);
         return authorizationInfo;
     }

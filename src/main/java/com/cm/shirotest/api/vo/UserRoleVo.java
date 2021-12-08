@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -37,7 +38,10 @@ public class UserRoleVo implements Serializable {
     @ApiModelProperty(value = "邮箱")
     private String email;
 
-    @ApiModelProperty(value = "角色、权限")
-    private List<RoleVo> roleVoList;
+    @ApiModelProperty(value = "角色")
+    private Set<RoleVo> roleSet;
+
+    @ApiModelProperty(value = "权限列表")
+    private Set<PermissionVo> permissionSet;
 
 }

@@ -1,6 +1,7 @@
 package com.cm.shirotest.service.impl;
 
 import com.cm.shirotest.api.request.UserLoginRequest;
+import com.cm.shirotest.api.vo.UserVo;
 import com.cm.shirotest.entity.User;
 import com.cm.shirotest.dao.UserMapper;
 import com.cm.shirotest.service.IUserService;
@@ -10,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,7 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 从SecurityUtils里边创建一个 subject
         Subject subject = SecurityUtils.getSubject();
         boolean authenticated = subject.isAuthenticated();
-        if (authenticated){
+        if (authenticated) {
             return "登录成功(已登录)";
         }
         // 在认证提交前准备 token（令牌）
@@ -59,6 +61,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             token.clear();
             return "登录失败";
         }
+    }
+
+    @Override
+    public String userLoginOut() {
+        Subject subject = SecurityUtils.getSubject();
+        try {
+            subject.logout();
+        } catch (RuntimeException e) {
+            log.error("用户登出失败！异常信息：{}", e.getMessage());
+            throw e;
+        }
+        return "用户登出成功！";
+    }
+
+    @Override
+    public UserVo getUserInfoById(Integer id) {
+        log.info("用户详情，用户ID：{}", id);
+        UserVo userVo = new UserVo();
+        User user = userMapper.selectById(id);
+        BeanUtils.copyProperties(user, userVo);
+        log.info("用户详情：{}", userVo);
+        return userVo;
     }
 
 }

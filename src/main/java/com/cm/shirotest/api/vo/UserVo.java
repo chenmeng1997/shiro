@@ -1,4 +1,4 @@
-package com.cm.shirotest.entity.vo;
+package com.cm.shirotest.api.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

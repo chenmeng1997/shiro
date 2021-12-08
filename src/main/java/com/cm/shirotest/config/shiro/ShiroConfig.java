@@ -5,12 +5,15 @@ import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,6 +27,11 @@ import java.util.Map;
 @Configuration
 public class ShiroConfig {
 
+    /**
+     * 设置过滤器，权限校验方式
+     * @param securityManager 安全管理器
+     * @return Shiro过滤器工厂
+     */
     @Bean(name = "shiroFilterFactoryBean")
     public ShiroFilterFactoryBean shiroFilter(@Qualifier(value = "getSecurityManager") SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
@@ -46,6 +54,11 @@ public class ShiroConfig {
 
     }
 
+    /**
+     * 安全管理器
+     * @param userRealm 授权领域
+     * @return 默认安全管理器
+     */
     @Bean(name = "getSecurityManager")
     public DefaultWebSecurityManager getSecurityManager(@Qualifier(value = "userRealm") UserRealm userRealm) {
         DefaultWebSecurityManager defaultSecurityManager = new DefaultWebSecurityManager();
@@ -53,6 +66,10 @@ public class ShiroConfig {
         return defaultSecurityManager;
     }
 
+    /**
+     * 认证、授权
+     * @return 授权领域
+     */
     @Bean(name = "userRealm")
     public UserRealm getUserRealm() {
         UserRealm userRealm = new UserRealm();
@@ -61,6 +78,10 @@ public class ShiroConfig {
         return userRealm;
     }
 
+    /**
+     * 密码校验
+     * @return 凭证匹配器
+     */
     @Bean
     public CredentialsMatcher getCredentialsMatcher() {
         HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
@@ -73,12 +94,33 @@ public class ShiroConfig {
         return credentialsMatcher;
     }
 
+    /**
+     * Session 管理器
+     * @return 管理器
+     */
     @Bean
-    public SessionManager getSessionManager(){
+    public SessionManager getSessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
 //        sessionManager.setSessionIdCookieEnabled(true);
         return sessionManager;
     }
 
+
+    /**
+     * 开启对shior注解的支持
+     */
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(@Qualifier(value = "getSecurityManager") SecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+        advisor.setSecurityManager(securityManager);
+        return advisor;
+    }
+
+    @Bean
+    public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator(){
+        DefaultAdvisorAutoProxyCreator proxyCreator = new DefaultAdvisorAutoProxyCreator();
+        proxyCreator.setProxyTargetClass(true);
+        return proxyCreator;
+    }
 
 }

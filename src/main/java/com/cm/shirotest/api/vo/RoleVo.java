@@ -31,7 +31,4 @@ public class RoleVo implements Serializable {
     @ApiModelProperty(value = "角色简介")
     private String summary;
 
-    @ApiModelProperty(value = "权限角色关系")
-    private PermissionRoleVo permissionRoleVo;
-
 }
