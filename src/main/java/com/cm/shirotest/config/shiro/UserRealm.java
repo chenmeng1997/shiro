@@ -2,11 +2,10 @@ package com.cm.shirotest.config.shiro;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.cm.shirotest.api.vo.PermissionVo;
 import com.cm.shirotest.api.vo.RoleVo;
 import com.cm.shirotest.api.vo.UserRoleVo;
 import com.cm.shirotest.entity.User;
-import com.cm.shirotest.enu.DeleteStateEnum;
+import com.cm.shirotest.Enum.DeleteStateEnum;
 import com.cm.shirotest.service.IUserRoleService;
 import com.cm.shirotest.service.IUserService;
 import lombok.extern.log4j.Log4j2;

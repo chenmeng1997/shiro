@@ -32,9 +32,18 @@ public interface IUserService extends IService<User> {
 
     /**
      * 用户信息据ID查
-     *@param id 用户ID
+     *
+     * @param id 用户ID
      * @return 用户信息
      */
     UserVo getUserInfoById(Integer id);
+
+    /**
+     * 用户信息据 用户登录账号
+     *
+     * @param loginName 用户登录账号
+     * @return 用户信息
+     */
+    User getUserInfoByLoginName(String loginName);
 
 }

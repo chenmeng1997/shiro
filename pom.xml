@@ -83,6 +83,13 @@
             <version>1.4.1</version>
         </dependency>
 
+        <!--Redis分布式锁-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.11.0</version>
+        </dependency>
+
         <!--工具类-->
         <dependency>
             <groupId>commons-httpclient</groupId>

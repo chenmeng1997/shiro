@@ -1,4 +1,4 @@
-package com.cm.shirotest.enu;
+package com.cm.shirotest.Enum;
 
 /**
  * @author 陈萌

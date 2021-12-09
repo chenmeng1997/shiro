@@ -13,7 +13,6 @@ import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreato
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +28,7 @@ public class ShiroConfig {
 
     /**
      * 设置过滤器，权限校验方式
+     *
      * @param securityManager 安全管理器
      * @return Shiro过滤器工厂
      */
@@ -56,6 +56,7 @@ public class ShiroConfig {
 
     /**
      * 安全管理器
+     *
      * @param userRealm 授权领域
      * @return 默认安全管理器
      */
@@ -68,6 +69,7 @@ public class ShiroConfig {
 
     /**
      * 认证、授权
+     *
      * @return 授权领域
      */
     @Bean(name = "userRealm")
@@ -80,6 +82,7 @@ public class ShiroConfig {
 
     /**
      * 密码校验
+     *
      * @return 凭证匹配器
      */
     @Bean
@@ -96,12 +99,13 @@ public class ShiroConfig {
 
     /**
      * Session 管理器
+     *
      * @return 管理器
      */
     @Bean
-    public SessionManager getSessionManager() {
+    public DefaultWebSessionManager getSessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-//        sessionManager.setSessionIdCookieEnabled(true);
+////        sessionManager.setSessionIdCookieEnabled(true);
         return sessionManager;
     }
 
@@ -116,8 +120,13 @@ public class ShiroConfig {
         return advisor;
     }
 
+    /**
+     * Shiro注解Aop自动代理创建器
+     *
+     * @return 默认顾问自动代理创建器
+     */
     @Bean
-    public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator(){
+    public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator() {
         DefaultAdvisorAutoProxyCreator proxyCreator = new DefaultAdvisorAutoProxyCreator();
         proxyCreator.setProxyTargetClass(true);
         return proxyCreator;

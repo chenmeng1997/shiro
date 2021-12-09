@@ -1,18 +1,30 @@
 package com.cm.shirotest.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cm.shirotest.api.request.UserLoginRequest;
 import com.cm.shirotest.api.vo.UserVo;
+import com.cm.shirotest.config.shiro.CacheConstant;
+import com.cm.shirotest.config.shiro.SimpleMapCache;
 import com.cm.shirotest.entity.User;
 import com.cm.shirotest.dao.UserMapper;
+import com.cm.shirotest.Enum.DeleteStateEnum;
+import com.cm.shirotest.service.ISimpleCacheService;
 import com.cm.shirotest.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.MapCache;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -28,6 +40,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     private final UserMapper userMapper;
+    private final ISimpleCacheService cacheService;
 
     @Override
     public String userLogin(UserLoginRequest request) {
@@ -83,6 +96,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         BeanUtils.copyProperties(user, userVo);
         log.info("用户详情：{}", userVo);
         return userVo;
+    }
+
+    @Override
+    public User getUserInfoByLoginName(String loginName) {
+        User user = null;
+        String key = CacheConstant.USER_LOGIN_KEY + loginName;
+        Cache<Object, Object> cache = cacheService.getCache(key);
+        if (Objects.nonNull(cache)) {
+            user = (User) cache.get(key);
+        } else {
+            LambdaQueryWrapper<User> queryWrapper = new QueryWrapper<User>().lambda();
+            queryWrapper
+                    .eq(User::getUsername, loginName)
+                    .eq(User::getDeleteState, DeleteStateEnum.NO);
+            user = userMapper.selectOne(queryWrapper);
+            if (Objects.nonNull(user)) {
+                Map<String, User> map = new HashMap<>();
+                map.put(key, user);
+                cacheService.createCache(key, new SimpleMapCache(key, map));
+            }
+        }
+        return user;
     }
 
 }
