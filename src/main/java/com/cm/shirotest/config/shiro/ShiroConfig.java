@@ -1,15 +1,18 @@
 package com.cm.shirotest.config.shiro;
 
+import com.cm.shirotest.config.cache.ShiroRedisProperties;
+import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +26,12 @@ import java.util.Map;
  * @date 2021/12/1 0001 22:48
  * @modelName shiro-test
  */
+@Log4j2
 @Configuration
 public class ShiroConfig {
+
+    @Autowired
+    private ShiroRedisProperties shiroRedisProperties;
 
     /**
      * 设置过滤器，权限校验方式
@@ -64,6 +71,7 @@ public class ShiroConfig {
     public DefaultWebSecurityManager getSecurityManager(@Qualifier(value = "userRealm") UserRealm userRealm) {
         DefaultWebSecurityManager defaultSecurityManager = new DefaultWebSecurityManager();
         defaultSecurityManager.setRealm(userRealm);
+        defaultSecurityManager.setSessionManager(getSessionManager());
         return defaultSecurityManager;
     }
 
@@ -98,6 +106,16 @@ public class ShiroConfig {
     }
 
     /**
+     * session的增删改查
+     */
+    @Bean(name = "redisSessionDao")
+    public RedisSessionDao getSessionDao() {
+        RedisSessionDao sessionDao = new RedisSessionDao();
+        sessionDao.setGlobalSessionTimeOut(shiroRedisProperties.getGlobalSessionTimeOut());
+        return sessionDao;
+    }
+
+    /**
      * Session 管理器
      *
      * @return 管理器
@@ -105,10 +123,13 @@ public class ShiroConfig {
     @Bean
     public DefaultWebSessionManager getSessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-////        sessionManager.setSessionIdCookieEnabled(true);
+        sessionManager.setSessionDAO(getSessionDao());
+        sessionManager.setSessionValidationSchedulerEnabled(false);
+        sessionManager.setSessionIdCookieEnabled(true);
+        sessionManager.setSessionIdCookie(new SimpleCookie());
+        sessionManager.setGlobalSessionTimeout(shiroRedisProperties.getGlobalSessionTimeOut());
         return sessionManager;
     }
-
 
     /**
      * 开启对shior注解的支持
