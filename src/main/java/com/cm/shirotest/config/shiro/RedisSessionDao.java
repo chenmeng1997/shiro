@@ -1,7 +1,7 @@
 package com.cm.shirotest.config.shiro;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cm.shirotest.config.cache.CacheConstant;
+import com.cm.shirotest.utils.RedissonSerializable;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.session.Session;
@@ -9,6 +9,8 @@ import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Data
 @Log4j2
+@Component("redisSessionDao")
 public class RedisSessionDao extends AbstractSessionDAO {
 
     @Resource(name = "redissonClientForShiro")
@@ -33,7 +36,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
     /**
      * session 有效时长 毫秒
      */
-    private long globalSessionTimeOut;
+    @Value("${shiro.globalSessionTimeOut}")
+    private String globalSessionTimeOut;
 
     @Override
     protected Serializable doCreate(Session session) {
@@ -43,9 +47,16 @@ public class RedisSessionDao extends AbstractSessionDAO {
         assignSessionId(session, sessionId);
         // 放入缓存
         String sessionKey = CacheConstant.GROUP_CAS_SESSION_ID + sessionId.toString();
-        RBucket<Session> bucket = redissonClient.getBucket(sessionKey);
-        boolean trySet = bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
-        log.debug("---创建全局session结束---sessionId：{}, trySet:{}", sessionId, trySet);
+        try {
+            session.setAttribute("sessionKey", sessionKey);
+            session.setTimeout(Long.parseLong(globalSessionTimeOut));
+            RBucket<String> bucket = redissonClient.getBucket(sessionKey);
+            String jsonString = RedissonSerializable.serialize(session);
+            bucket.trySet(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MICROSECONDS);
+        } catch (RuntimeException e) {
+            log.error("---创建全局session结束---e：{}", e.getMessage());
+            throw e;
+        }
         return sessionId;
     }
 
@@ -53,9 +64,15 @@ public class RedisSessionDao extends AbstractSessionDAO {
     protected Session doReadSession(Serializable sessionId) {
         log.debug("---读取全局session开始，sessionId：{}---", sessionId);
         String sessionKey = CacheConstant.GROUP_CAS_SESSION_ID + sessionId.toString();
-        RBucket<Session> bucket = redissonClient.getBucket(sessionKey);
-        Session session = bucket.get();
-        log.debug("---读取全局session结束，session：{}---", JSONObject.toJSONString(session));
+        Session session;
+        try {
+            RBucket<String> bucket = redissonClient.getBucket(sessionKey);
+            String sessionStr = bucket.get();
+            session = (Session) RedissonSerializable.deserialize(sessionStr);
+        } catch (RuntimeException e) {
+            log.error("---读取全局session结束，e：{}---", e.getMessage());
+            throw e;
+        }
         return session;
     }
 
@@ -63,9 +80,16 @@ public class RedisSessionDao extends AbstractSessionDAO {
     public void update(Session session) throws UnknownSessionException {
         log.debug("---全局session修改---");
         String sessionKey = CacheConstant.GROUP_CAS_SESSION_ID + session.getId().toString();
-        RBucket<Session> bucket = redissonClient.getBucket(sessionKey);
-        boolean trySet = bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
-        log.debug("---全局session修改结束---session：{},trySet:{}", session, trySet);
+        session.setAttribute("sessionKey", sessionKey);
+        session.setTimeout(Long.parseLong(globalSessionTimeOut));
+        String jsonString = RedissonSerializable.serialize(session);
+        try {
+            RBucket<String> bucket = redissonClient.getBucket(sessionKey);
+            bucket.set(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MICROSECONDS);
+        } catch (RuntimeException e) {
+            log.error("---全局session修改结束---e：{}", e.getMessage());
+            throw e;
+        }
     }
 
     @Override

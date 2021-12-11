@@ -3,15 +3,11 @@ package com.cm.shirotest;
 
 import com.cm.shirotest.api.vo.PermissionRoleVo;
 import com.cm.shirotest.api.vo.UserRoleVo;
-import com.cm.shirotest.config.cache.CacheConstant;
-import com.cm.shirotest.entity.User;
 import com.cm.shirotest.service.IPermissionRoleService;
 import com.cm.shirotest.service.ISimpleCacheService;
 import com.cm.shirotest.service.IUserRoleService;
 import com.cm.shirotest.service.IUserService;
-import com.cm.shirotest.utils.PWDUtil;
-import org.apache.shiro.cache.Cache;
-import org.apache.shiro.cache.MapCache;
+import com.cm.shirotest.utils.RedissonSerializable;
 import org.apache.shiro.session.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,7 +57,8 @@ public class ShiroTestApplicationTests {
 
     @Test
     public void test() {
-        RBucket<String> bucket = redissonClient.getBucket("sessionKey");
-        bucket.set("session");
+        RBucket<String> bucket = redissonClient.getBucket("group_shiro:global:sessionId:8f0d2613-7e4d-447f-ab18-33e2910d1f9a");
+        String sessionStr = bucket.get();
+        Session session = (Session) RedissonSerializable.deserialize(sessionStr);
     }
 }

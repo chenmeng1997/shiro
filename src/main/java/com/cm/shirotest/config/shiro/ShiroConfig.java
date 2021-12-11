@@ -1,6 +1,5 @@
 package com.cm.shirotest.config.shiro;
 
-import com.cm.shirotest.config.cache.ShiroRedisProperties;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -15,8 +14,8 @@ import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,8 +32,8 @@ import java.util.Map;
 @Configuration
 public class ShiroConfig {
 
-    @Autowired
-    private ShiroRedisProperties shiroRedisProperties;
+    @Value("${shiro.globalSessionTimeOut}")
+    private String globalSessionTimeOut;
 
     /**
      * 设置过滤器，权限校验方式
@@ -112,10 +111,10 @@ public class ShiroConfig {
     /**
      * session的增删改查
      */
-    @Bean(name = "redisSessionDao")
+    @Bean(name = "getSessionDao")
     public RedisSessionDao getSessionDao() {
         RedisSessionDao sessionDao = new RedisSessionDao();
-        sessionDao.setGlobalSessionTimeOut(shiroRedisProperties.getGlobalSessionTimeOut());
+        sessionDao.setGlobalSessionTimeOut(globalSessionTimeOut);
         return sessionDao;
     }
 
@@ -126,10 +125,10 @@ public class ShiroConfig {
      */
     @Bean
     public DefaultWebSessionManager getSessionManager() {
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        ShiroDefaultWebSessionManager sessionManager = new ShiroDefaultWebSessionManager();
         sessionManager.setSessionDAO(getSessionDao());
         sessionManager.setSessionValidationSchedulerEnabled(false);
-        sessionManager.setGlobalSessionTimeout(shiroRedisProperties.getGlobalSessionTimeOut());
+        sessionManager.setGlobalSessionTimeout(Long.parseLong(globalSessionTimeOut));
 
         sessionManager.setSessionIdCookieEnabled(true);
         Cookie cookie = new SimpleCookie();
@@ -158,7 +157,7 @@ public class ShiroConfig {
     public SimpleCookie rememberMeCookie() {
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
         simpleCookie.setHttpOnly(true);
-        simpleCookie.setMaxAge((int) shiroRedisProperties.getGlobalSessionTimeOut());
+        simpleCookie.setMaxAge(Integer.parseInt(globalSessionTimeOut));
         return simpleCookie;
     }
 
