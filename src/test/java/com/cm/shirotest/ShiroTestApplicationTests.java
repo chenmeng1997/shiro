@@ -3,6 +3,7 @@ package com.cm.shirotest;
 
 import com.cm.shirotest.api.vo.PermissionRoleVo;
 import com.cm.shirotest.api.vo.UserRoleVo;
+import com.cm.shirotest.config.cache.CacheConstant;
 import com.cm.shirotest.entity.User;
 import com.cm.shirotest.service.IPermissionRoleService;
 import com.cm.shirotest.service.ISimpleCacheService;
@@ -11,6 +12,7 @@ import com.cm.shirotest.service.IUserService;
 import com.cm.shirotest.utils.PWDUtil;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.MapCache;
+import org.apache.shiro.session.Session;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.redisson.api.RBucket;
@@ -61,6 +63,7 @@ public class ShiroTestApplicationTests {
 
     @Test
     public void test() {
-        User chenmeng = userService.getUserInfoByLoginName("chenmeng");
+        RBucket<String> bucket = redissonClient.getBucket("sessionKey");
+        bucket.set("session");
     }
 }

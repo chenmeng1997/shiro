@@ -18,9 +18,15 @@ mybatis-plus:
 
 shiro:
   redis:
-    nodes: redis://127.0.0.1:6379    #redis链接地址
-    connectTimeOut: 10000    #链接超时时间
-    connectPoolSize: 64    #连接池大小
-    connectionMinimumIdleSize: 32     #初始化连接数
-    timeOut: 6000    #返回超时时间
-    globalSessionTimeOut: 360000    #返回超时时间(毫秒)
+    #redis链接地址
+    nodes: redis://127.0.0.1:6379
+    #链接超时时间
+    connectTimeOut: 6000
+    #连接池大小
+    connectPoolSize: 100
+    #初始化连接数
+    connectionMinimumIdleSize: 20
+    #返回超时时间
+    timeOut: 100
+    #返回超时时间(毫秒)
+    globalSessionTimeOut: 100000

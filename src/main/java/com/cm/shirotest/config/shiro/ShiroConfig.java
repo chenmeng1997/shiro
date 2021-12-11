@@ -4,11 +4,14 @@ import com.cm.shirotest.config.cache.ShiroRedisProperties;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -72,6 +75,7 @@ public class ShiroConfig {
         DefaultWebSecurityManager defaultSecurityManager = new DefaultWebSecurityManager();
         defaultSecurityManager.setRealm(userRealm);
         defaultSecurityManager.setSessionManager(getSessionManager());
+        //defaultSecurityManager.setRememberMeManager(rememberMeManager());
         return defaultSecurityManager;
     }
 
@@ -125,10 +129,37 @@ public class ShiroConfig {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionDAO(getSessionDao());
         sessionManager.setSessionValidationSchedulerEnabled(false);
-        sessionManager.setSessionIdCookieEnabled(true);
-        sessionManager.setSessionIdCookie(new SimpleCookie());
         sessionManager.setGlobalSessionTimeout(shiroRedisProperties.getGlobalSessionTimeOut());
+
+        sessionManager.setSessionIdCookieEnabled(true);
+        Cookie cookie = new SimpleCookie();
+        // 修改默认session名称,这里没有设置session的cookie生命周期，默认就是 浏览器关闭时候或者服务器设置的 session 的时间
+        cookie.setName("shiroCookie");
+        cookie.setHttpOnly(true);
+        sessionManager.setSessionIdCookie(cookie);
         return sessionManager;
+    }
+
+    /**
+     * rememberMe管理器, cipherKey生成见{@code Base64Test.java}
+     */
+    @Bean
+    public CookieRememberMeManager rememberMeManager() {
+        CookieRememberMeManager manager = new CookieRememberMeManager();
+        manager.setCipherKey(Base64.decode("Z3VucwAAAAAAAAAAAAAAAA=="));
+        manager.setCookie(rememberMeCookie());
+        return manager;
+    }
+
+    /**
+     * 记住密码Cookie
+     */
+    @Bean
+    public SimpleCookie rememberMeCookie() {
+        SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
+        simpleCookie.setHttpOnly(true);
+        simpleCookie.setMaxAge((int) shiroRedisProperties.getGlobalSessionTimeOut());
+        return simpleCookie;
     }
 
     /**

@@ -32,6 +32,7 @@ public class RedissonConfig {
         if (nodes.length == 1) {
             // 单机
             config.useSingleServer()
+                    .setDatabase(0)
                     .setAddress(nodes[0])
                     .setConnectTimeout(shiroRedisProperties.getConnectTimeOut())
                     .setConnectionMinimumIdleSize(shiroRedisProperties.getConnectionMinimumIdleSize())

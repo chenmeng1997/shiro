@@ -44,8 +44,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
         // 放入缓存
         String sessionKey = CacheConstant.GROUP_CAS_SESSION_ID + sessionId.toString();
         RBucket<Session> bucket = redissonClient.getBucket(sessionKey);
-        bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
-        log.debug("---创建全局session结束---sessionId：{}", sessionId);
+        boolean trySet = bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
+        log.debug("---创建全局session结束---sessionId：{}, trySet:{}", sessionId, trySet);
         return sessionId;
     }
 
@@ -64,8 +64,8 @@ public class RedisSessionDao extends AbstractSessionDAO {
         log.debug("---全局session修改---");
         String sessionKey = CacheConstant.GROUP_CAS_SESSION_ID + session.getId().toString();
         RBucket<Session> bucket = redissonClient.getBucket(sessionKey);
-        bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
-        log.debug("---全局session修改结束---session：{}", session);
+        boolean trySet = bucket.trySet(session, globalSessionTimeOut, TimeUnit.MICROSECONDS);
+        log.debug("---全局session修改结束---session：{},trySet:{}", session, trySet);
     }
 
     @Override
@@ -79,10 +79,12 @@ public class RedisSessionDao extends AbstractSessionDAO {
 
     /**
      * 统计当前活跃用户数
+     *
      * @return Session集合
      */
     @Override
     public Collection<Session> getActiveSessions() {
         return Collections.EMPTY_SET;
     }
+
 }
