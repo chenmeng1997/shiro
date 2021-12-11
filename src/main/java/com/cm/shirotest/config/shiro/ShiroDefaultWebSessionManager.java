@@ -29,9 +29,7 @@ public class ShiroDefaultWebSessionManager
      */
     @Override
     protected void doValidate(Session session) throws InvalidSessionException {
-
-        super.doValidate(session);
-
+        
         if (Objects.nonNull(session)) {
             String sessionKey = (String) session.getAttribute("sessionKey");
             long timeToLive = redissonClient.getBucket(sessionKey).remainTimeToLive();
