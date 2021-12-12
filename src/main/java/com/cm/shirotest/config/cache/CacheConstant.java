@@ -26,4 +26,10 @@ public interface CacheConstant {
      */
     String GROUP_CAS_RETRY_LIMIT_NUM = GROUP_CAS + "retryLimitNum:";
 
+    /**
+     * 踢出用户
+     */
+    String GROUP_CAS_KICKED_OUT_AUTHORIZATION = GROUP_CAS + "kicked_Out_Authorization:";
+
+
 }

@@ -52,7 +52,7 @@ public class RedisSessionDao extends AbstractSessionDAO {
             session.setTimeout(Long.parseLong(globalSessionTimeOut));
             RBucket<String> bucket = redissonClient.getBucket(sessionKey);
             String jsonString = RedissonSerializable.serialize(session);
-            bucket.trySet(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MICROSECONDS);
+            bucket.trySet(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MILLISECONDS);
         } catch (RuntimeException e) {
             log.error("---创建全局session结束---e：{}", e.getMessage());
             throw e;
@@ -85,7 +85,7 @@ public class RedisSessionDao extends AbstractSessionDAO {
         String jsonString = RedissonSerializable.serialize(session);
         try {
             RBucket<String> bucket = redissonClient.getBucket(sessionKey);
-            bucket.set(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MICROSECONDS);
+            bucket.set(jsonString, Long.parseLong(globalSessionTimeOut), TimeUnit.MILLISECONDS);
         } catch (RuntimeException e) {
             log.error("---全局session修改结束---e：{}", e.getMessage());
             throw e;

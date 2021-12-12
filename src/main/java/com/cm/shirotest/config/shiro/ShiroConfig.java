@@ -1,6 +1,10 @@
 package com.cm.shirotest.config.shiro;
 
 import lombok.extern.log4j.Log4j2;
+
+import javax.annotation.Resource;
+import javax.servlet.Filter;
+
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -12,12 +16,14 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,6 +40,9 @@ public class ShiroConfig {
     @Value("${shiro.globalSessionTimeOut}")
     private String globalSessionTimeOut;
 
+    @Resource(name = "redissonClientForShiro")
+    private RedissonClient redissonClient;
+
     /**
      * 设置过滤器，权限校验方式
      *
@@ -46,9 +55,15 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setUnauthorizedUrl("/notRole");
+
+        // 自定义过滤器
+        Map<String, Filter> filterMap = this.getFilterMap();
+        shiroFilterFactoryBean.setFilters(filterMap);
+
+        // 过滤器链
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // <!-- authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问-->
-        filterChainDefinitionMap.put("/user/login", "anon");
+        filterChainDefinitionMap.put("/user/login", "anon,kicked");
         filterChainDefinitionMap.put("/test/**", "anon");
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/api/**", "anon");
@@ -180,6 +195,13 @@ public class ShiroConfig {
         DefaultAdvisorAutoProxyCreator proxyCreator = new DefaultAdvisorAutoProxyCreator();
         proxyCreator.setProxyTargetClass(true);
         return proxyCreator;
+    }
+
+    private Map<String, Filter> getFilterMap() {
+        Map<String, Filter> filterMap = new HashMap<>();
+        KickedOutAuthorizationFilter kickedOutFilter = new KickedOutAuthorizationFilter(getSessionManager(), redissonClient, getSessionDao());
+        filterMap.put("kicked", kickedOutFilter);
+        return filterMap;
     }
 
 }

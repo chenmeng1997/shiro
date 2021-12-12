@@ -34,6 +34,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   #SQl日志
 
 shiro:
+  # session失效时间 毫秒
   globalSessionTimeOut: 86400000
   # 密码重试次数
   retryLimit: 5
