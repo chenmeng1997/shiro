@@ -35,3 +35,7 @@ mybatis-plus:
 
 shiro:
   globalSessionTimeOut: 86400000
+  # 密码重试次数
+  retryLimit: 5
+  # 密码错误超出限制后，锁定时长 分钟
+  userLockTime: 10

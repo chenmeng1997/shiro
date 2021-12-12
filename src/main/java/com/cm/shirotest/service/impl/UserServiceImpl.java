@@ -2,16 +2,16 @@ package com.cm.shirotest.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cm.shirotest.Enum.DeleteStateEnum;
 import com.cm.shirotest.api.request.UserLoginRequest;
 import com.cm.shirotest.api.vo.UserVo;
 import com.cm.shirotest.config.cache.CacheConstant;
 import com.cm.shirotest.config.shiro.SimpleMapCache;
-import com.cm.shirotest.entity.User;
 import com.cm.shirotest.dao.UserMapper;
-import com.cm.shirotest.Enum.DeleteStateEnum;
+import com.cm.shirotest.entity.User;
 import com.cm.shirotest.service.ISimpleCacheService;
 import com.cm.shirotest.service.IUserService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.SecurityUtils;
@@ -63,7 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         } catch (LockedAccountException lae) {
             return "账户已锁定";
         } catch (ExcessiveAttemptsException eae) {
-            return "用户名或密码错误次数过多";
+            return eae.getMessage();
         } catch (AuthenticationException ae) {
             return "用户名或密码不正确！";
         }
@@ -99,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public User getUserInfoByLoginName(String loginName) {
-        User user = null;
+        User user;
         String key = CacheConstant.USER_LOGIN_KEY + loginName;
         Cache<Object, Object> cache = cacheService.getCache(key);
         if (Objects.nonNull(cache)) {

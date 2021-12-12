@@ -2,7 +2,6 @@ package com.cm.shirotest.config.shiro;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.mgt.SecurityManager;
@@ -98,7 +97,7 @@ public class ShiroConfig {
      */
     @Bean
     public CredentialsMatcher getCredentialsMatcher() {
-        HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
+        RetryLimitCredentialsMatcher credentialsMatcher = new RetryLimitCredentialsMatcher();
         // 散列算法，这里使用更安全的sha256算法
         credentialsMatcher.setHashAlgorithmName(Md5Hash.ALGORITHM_NAME);
         // 数据库存储的密码字段使用HEX还是BASE64方式加密

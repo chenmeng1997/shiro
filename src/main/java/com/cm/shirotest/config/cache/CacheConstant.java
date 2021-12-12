@@ -21,4 +21,9 @@ public interface CacheConstant {
      */
     String GROUP_CAS_SESSION_ID = GROUP_CAS + "global:sessionId:";
 
+    /**
+     * 用户密码重试次数
+     */
+    String GROUP_CAS_RETRY_LIMIT_NUM = GROUP_CAS + "retryLimitNum:";
+
 }
