@@ -3,7 +3,7 @@ package com.cm.shirotest.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cm.shirotest.Enum.DeleteStateEnum;
+import com.cm.shirotest.enums.DeleteStateEnum;
 import com.cm.shirotest.api.request.UserLoginRequest;
 import com.cm.shirotest.api.vo.UserVo;
 import com.cm.shirotest.config.cache.CacheConstant;
