@@ -9,9 +9,9 @@ spring:
   redis:
     # redis默认情况下有16个分片，这里配置具体使用的分片，默认为0
     database: 0
-    host: 1.117.92.221
+    host: 127.0.0.1
     port: 6379
-    password: Chen1997
+#    password: Chen1997
     lettuce:
       pool:
         # 连接池最大连接数(使用负数表示没有限制),默认8
